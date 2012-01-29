@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html dir="ltr" lang="en-US">
+<head>
+	<title>Socket.IO - Chat</title>	
+	<style type="text/css">		
+		#main {
+			width: 470px; margin: 0 auto;
+			font-family: Helvetica;
+			font-size: 12px;
+		}
+
+		#users, #send-chat {
+			width: 300px;
+			float: left;
+		}
+
+		h2 em { color: green; }
+
+		#users { width: 150px; }
+
+		ul, li { 
+			list-style: none; padding: 0;
+			text-indent: 0; margin: 0;
+		}
+
+		ul#chat-messages {
+			padding: 10px 0 10px 0;
+		}
+
+		ul#chat-messages li {
+			display: block;
+			margin: 0 0 5px 0;
+		}
+
+		#users-online li {
+			color: #006699;
+			border-bottom: 1px dotted;
+			diplay: inline-block;
+			margin: 0 0 5px 0;
+			cursor: pointer;
+		}
+
+		#users-online li:hover {
+			background: #eee;
+		}
+
+	</style>
+	<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+</head>
+
+<body>	
+	<div id="wrapper">
+		<div id="main">			
+			<h2>Welcome, <em><%= username %></em>. You are online.</h2>			
+			<div id="send-chat">
+				<h3>Chat</h3>
+				<ul id="chat-messages"></ul>								
+				<input type="text" size="30" placeholder="send to" id="to" /> <br />				
+				<textarea id="message" rows="3" cols="23" placeholder="your message"></textarea> <br />
+				<button id="send-message">send</button>
+			</div>
+
+			<div id="users">
+				<h3>Online users</h3>
+				<ul id="users-online">					
+				</ul>
+			</div>
+		</div>
+	</div>
+
+	<script type="text/javascript" src="/socket.io/socket.io.js"></script>
+	<script type="text/javascript">
+	  var myUsername = '<%= username %>';
+	  var socket = io.connect(); 
+	  socket.on('connect', function () { 
+	    console.log('Connected.');	    
+	    socket.emit('user.username', myUsername);	  
+	  });
+
+	  socket.on('user.onlinelist', function(onlinemap) {
+	  	for(var username in onlinemap) {
+	  		if(username == myUsername) return ;
+	  		$('#user-'+username).remove();
+	  		$('#users-online').append('<li id="user-' + username + '">'+ username + '</li>');	
+	  	}
+	  });
+
+	  socket.on('user.online', function(user) {
+	  	console.log('New user is online. ' + user.username);
+	  	if(user.username == myUsername) return ;
+	  	$('#user-'+user.username).remove();
+	  	$('#users-online').append('<li id="user-' + user.username + '">'+ user.username + '</li>');
+	  });
+
+	  socket.on('user.offline', function(user) {
+	  	console.log('User is offline. ' + user.username);
+	  	if(user.username == myUsername) return ;
+	  	$('#user-'+user.username).remove();
+	  });
+	  
+	  socket.on('chat.message', function (data) {    	
+    	$('#chat-messages').append('<li>' + '<strong>' + data.from + ': </strong>' + data.message + '</li>');
+    	$('#to').val(data.from);
+  	  });
+
+  	  socket.on('disconnect', function() {
+  	  	alert('Server disconnected.');
+  	  	$('#users-online li').remove();
+  	  });
+  	  
+  	  // UI handlers
+  	  $('#send-message').bind('click', function() {
+  	  	console.log('Sending message:',{ to: $('#to').val(), message: $('#message').val() });
+  	  	socket.emit('chat.message', { to: $('#to').val(), message: $('#message').val() });
+  	  	$('#chat-messages').append('<li>' + '<strong>me: </strong>' + $('#message').val() + '</li>');
+  	  	$('#message').val('');
+  	  	$('#message').focus();
+  	  });   
+  	  
+  	  $('#users-online li').live('click', function() {
+		$('#to').val($(this).text());
+		$('#message').focus();
+  	  });
+  	   	  
+	</script>
+</body>
+</html>
+
