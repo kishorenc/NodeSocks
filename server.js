@@ -8,7 +8,7 @@ var usersOnline = Object.create(null);
 app.listen(7100);
 
 app.get('/user/:username', function (req, res) {
-  res.render(__dirname + '/democlient.ejs', {layout: false, username: req.params.username});
+  res.render(__dirname + '/client.ejs', {layout: false, username: req.params.username});
 });
 
 function incrConnForUser(username) {

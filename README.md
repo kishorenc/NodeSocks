@@ -6,9 +6,9 @@ A demo Node.js + Socket.IO application that covers most of the basic needs of a 
 
 You need Express 2.5.x, Socket.IO and EJS
 
-	$ npm install express
-	$ npm install socket.io
-	$ npm install ejs
+	$ npm install express@2.5.10
+	$ npm install socket.io@0.9.6
+	$ npm install ejs@0.7
 
 To start the app, do:
 
