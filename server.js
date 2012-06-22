@@ -7,6 +7,10 @@ var usersOnline = Object.create(null);
 
 app.listen(7100);
 
+app.get('/', function(req, res) {
+   res.send('Hello from NodeSocks!');
+});
+
 app.get('/user/:username', function (req, res) {
   res.render(__dirname + '/client.ejs', {layout: false, username: req.params.username});
 });
